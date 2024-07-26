@@ -57,7 +57,7 @@
 | JDK        | 17     |
 | Maven      | 3.9.8  |
 | Springboot | 2.7.18 |
-| MySQL      | 8.0.21 |
+| MySQL      | 8.0.37 |
 | Redis      | 6.2.14 |
 
 
@@ -68,7 +68,7 @@
 
 - **用户模块**：负责用户的注册、登录、权限控制、用户数据管理（CRUD）；
 - **数据集模块**：负责数据集信息管理（数据集创建、数据集编辑、条件查询数据集和数据集删除）
-- **组模块**：负责组相关的操作和信息管理（组创建、组信息编辑、组查询、组删除）
+- **组模块**：负责组相关的操作和信息管理（组创建、组信息编辑、组查询、组删除）6
 - **图片数据模块**：负责图片数据信息管理
   - 图片上传
   - 图片下载
@@ -124,14 +124,14 @@ CREATE TABLE User (
 CREATE TABLE ImageType (
     ImageTypeId INT PRIMARY KEY,
     ImageTypeName VARCHAR(50) NOT NULL,
-    ImageExtensions VARCHAR(100) NOT NULL
+    ImageExtensions VARCHAR(500) NOT NULL
 );
 
 # 数据集表 (现在的数据集表表达一个较大的概念，在编码时将其设定为和ImageGroup表的父目录，形成两层目录来确定一组图片)
 CREATE TABLE Project (
 		ProjectId INT AUTO_INCREMENT PRIMARY KEY,                -- 自增长的数据集ID
   	ProjectName VARCHAR(50) NOT NULL,                        -- 数据集名，非空
-  	Desciption VARCHAR(2000) DEFAULT 'N/A',								   -- 数据集描述信息，默认为'N/A'
+  	Description VARCHAR(2000) DEFAULT 'N/A',								   -- 数据集描述信息，默认为'N/A'
   	UserId INT NOT NULL,																		 -- 关联的用户，外键（不在数据库中设计外键） 
   	ImageTypeId INT NOT NULL,																 -- 关联的图片类型，外键（不在数据库中设计外键）
   	CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- 记录创建时间，默认为当前时间
@@ -166,7 +166,7 @@ CREATE TABLE Annotation (
   	AnnotationName VARCHAR(50) NOT NULL,                     -- 标记名称，非空
     AnnotationUrl VARCHAR(255) NOT NULL,                     -- 标记结果保存的URL，非空
     ImageId INT NOT NULL,                                     -- 关联的图片ID，外键（不在数据库中设计外键）
-    AnnotatedBy VARCHAR(50) NOT NULL,            -- 标注者（如果是手动标注结果就是human，模型推理结果就是对应的模型名称）
+    AnnotatedBy VARCHAR(255) NOT NULL,            -- 标注者（如果是手动标注结果就是human，模型推理结果就是对应的模型名称）
     CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,          -- 记录创建时间，默认为当前时间
     UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
 );
@@ -181,4 +181,5 @@ NetworkId INT AUTO_INCREMENT PRIMARY KEY,
 );
 
 ```
+
 
