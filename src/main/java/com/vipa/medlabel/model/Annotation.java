@@ -1,40 +1,44 @@
 package com.vipa.medlabel.model;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import java.sql.Timestamp;
 
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.vipa.medlabel.config.mongodbconfig.ObjectIdDeserializer;
+import com.vipa.medlabel.config.mongodbconfig.ObjectIdSerializer;
+
+// MongoDB 文档类型，这里给出springboot的类定义进行格式限定
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "Annotation")
+@Document(collection = "annotations")
 public class Annotation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int annotationId;
+    @JsonSerialize(using = ObjectIdSerializer.class)
+    @JsonDeserialize(using = ObjectIdDeserializer.class)
+    private ObjectId annotationId;
 
-    @Column(nullable = false, length = 50)
     private String annotationName;
 
-    @Column(nullable = false, length = 255)
-    private String annotationUrl;
+    private String description;
 
-    @Column(nullable = false, length = 255)
-    private String annotatedBy;
+    @NotNull(message = "Image Id is required")
+    private Integer imageId;
 
-    @Column(nullable = false, updatable = false)
-    @org.hibernate.annotations.CreationTimestamp
     private Timestamp createdTime;
 
-    @Column(nullable = false)
-    @org.hibernate.annotations.UpdateTimestamp
     private Timestamp updatedTime;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "imageId", nullable = false)
-    private Image image;
+    private String annotatedBy;
+
+    @NotNull(message = "User Id is required")
+    private Integer userId; // 直接关联用户ID，避免多级关联访问
+
+    private String annotationResult; // 标注结果
 }

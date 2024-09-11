@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import com.vipa.medlabel.dto.response.ResponseResult;
 
@@ -43,6 +44,17 @@ public class GlobalExceptionHandler {
 
                 ResponseResult<Object> errorResponse = new ResponseResult<>(CustomError.ARGUMENT_NOT_VALID.getCode(),
                                 errorMessage);
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        @ExceptionHandler(HandlerMethodValidationException.class)
+        public ResponseEntity<ResponseResult<Object>> handleHandlerMethodValidationException(
+                        HandlerMethodValidationException e, WebRequest request) {
+
+                e.printStackTrace();
+                ResponseResult<Object> errorResponse = new ResponseResult<>(CustomError.ARGUMENT_NOT_VALID.getCode(),
+                                e.getMessage());
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }

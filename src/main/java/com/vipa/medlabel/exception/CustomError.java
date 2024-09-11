@@ -1,7 +1,10 @@
 package com.vipa.medlabel.exception;
 
+import lombok.Getter;
+
+@Getter
 public enum CustomError {
-    INVALID_AUTHENTIFICATION_ERROR(700, "Invalid Authorization header"),
+    INVALID_AUTHENTICATION_ERROR(700, "Invalid Authorization header"),
     USERNAME_NOT_FOUND_ERROR(701, "User not exists by Username or Email"),
     USERNAME_ALREADY_EXISTS(702, "Username already exists"),
     EMAIL_ALREADY_EXISTS(703, "Email already exists"),
@@ -11,7 +14,23 @@ public enum CustomError {
     EMPTY_JWT_CLAIM(707, "Empty JWT claim"),
     UNAUTHORIZED_REQUEST(708, "Unauthorized request"),
 
-    ARGUMENT_NOT_VALID(709, "Argument not valid"),
+    PROJECT_NOT_FOUND(720, "Project not found"),
+
+    IMAGE_ID_NOT_FOUND(730, "Image id not found"),
+    INVALID_IMAGE_URL(731, "Invalid image url"),
+    INVALID_FOLDER_URL(732, "Image folder not found or is not a folder"),
+    READ_FOLDER_ERROR(733, "Read folder error"),
+    CROSS_PROJECT_MOVE_ERROR(734, "Cross project move is not supported"),
+
+    IMAGE_GROUP_ID_NOT_FOUND(740, "Image group id not found"),
+    GROUP_NOT_FOUND(741, "Group not found"),
+    INVALID_GROUP_DATA(742, "Invalid group data"),
+
+    IMAGETYPE_NOT_FOUND(750, "Image type not found"),
+    IMAGETYPE_NOT_MATCH(751, "Image type not match with project"),
+
+    ANNOTATION_NOT_FOUND(760, "Annotation not found"),
+    ARGUMENT_NOT_VALID(801, "Argument not valid"),
     INTERNAL_SERVER_ERROR(800, "Internal server error");
 
     private final String message;
@@ -22,11 +41,4 @@ public enum CustomError {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
 }

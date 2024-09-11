@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ import java.util.*;
 public class ImageGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int imageGroupId;
+    private Integer imageGroupId;
 
     @Column(nullable = false, length = 50)
     private String imageGroupName;
@@ -32,11 +34,17 @@ public class ImageGroup {
     @org.hibernate.annotations.UpdateTimestamp
     private Timestamp updatedTime;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "projectId", nullable = false)
     private Project project;
 
     @OneToMany(mappedBy = "imageGroup")
+    @JsonIgnore
     private List<Image> images = new ArrayList<>();
+
+    @Version
+    @JsonIgnore
+    private Integer version;
 
 }

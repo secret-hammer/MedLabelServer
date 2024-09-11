@@ -62,9 +62,62 @@
         </encoder>
     </appender>
 
+    <!-- RabbitMQ Error日志输出 -->
+    <appender name="rabbitMQErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>Error</level>
+        </filter>
+        <file>${logback.logdir}/RabbitMQ_error.${logback.appname}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${logback.logdir}/RabbitMQ_error.${logback.appname}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 每个日志文件大小限制 -->
+                <maxFileSize>1GB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 保留历史日志文件数量 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="rabbitMQInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+        <file>${logback.logdir}/RabbitMQ_info.${logback.appname}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${logback.logdir}/RabbitMQ_info.${logback.appname}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 每个日志文件大小限制 -->
+                <maxFileSize>1GB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 保留历史日志文件数量 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 定义RabbitMQ回调的日志记录器 -->
+    <logger name="rabbitmq_log" level="DEBUG" additivity="false">
+        <appender-ref ref="rabbitMQInfoLog" />
+        <appender-ref ref="rabbitMQErrorLog" />
+    </logger>
+
 
     <!-- 设置日志级别 -->
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="console" />
         <appender-ref ref="fileErrorLog" />
         <appender-ref ref="fileInfoLog" />

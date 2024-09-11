@@ -1,9 +1,11 @@
-package com.vipa.medlabel.service;
+package com.vipa.medlabel.service.user;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.vipa.medlabel.dto.request.RegisterRequest;
+import com.vipa.medlabel.dto.request.user.RegisterRequest;
 import com.vipa.medlabel.exception.CustomError;
 import com.vipa.medlabel.exception.CustomException;
 import com.vipa.medlabel.model.User;
@@ -14,8 +16,8 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void register(RegisterRequest registerRequest) {
         // 检查是否有重复
@@ -41,4 +43,9 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public User getCurrentUser() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String usernameOrEmail = userDetails.getUsername();
+        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).get();
+    }
 }

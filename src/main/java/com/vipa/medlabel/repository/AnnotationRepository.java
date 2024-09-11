@@ -1,8 +1,10 @@
 package com.vipa.medlabel.repository;
 
 import com.vipa.medlabel.model.Annotation;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AnnotationRepository extends JpaRepository<Annotation, Integer> {
-    // Additional custom queries can be defined here
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface AnnotationRepository extends MongoRepository<Annotation, ObjectId> {
+    Annotation findByAnnotationId(ObjectId annotationId);
 }

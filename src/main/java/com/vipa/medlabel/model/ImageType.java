@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,7 +16,7 @@ import java.util.*;
 @Table(name = "ImageType")
 public class ImageType {
     @Id
-    private int imageTypeId;
+    private Integer imageTypeId;
 
     @Column(nullable = false, length = 50)
     private String imageTypeName;
@@ -23,8 +25,10 @@ public class ImageType {
     private String imageExtensions;
 
     @OneToMany(mappedBy = "imageType")
+    @JsonIgnore
     private List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "imageType")
+    @JsonIgnore
     private List<Project> projects = new ArrayList<>();
 }

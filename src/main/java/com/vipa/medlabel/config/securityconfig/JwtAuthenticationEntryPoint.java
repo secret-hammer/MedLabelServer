@@ -7,6 +7,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import com.vipa.medlabel.exception.CustomError;
+import com.vipa.medlabel.exception.CustomException;
+
 import java.io.IOException;
 
 @Component

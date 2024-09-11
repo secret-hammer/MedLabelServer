@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ import java.util.*;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int projectId;
+    private Integer projectId;
 
     @Column(nullable = false, length = 50)
     private String projectName;
@@ -34,12 +36,17 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
+    @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project")
+    @JsonIgnore
     private List<ImageGroup> imageGroups = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "imageTypeId", nullable = false)
     private ImageType imageType;
+
+    @Version
+    private Integer version;
 }

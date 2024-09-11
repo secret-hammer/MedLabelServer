@@ -1,6 +1,7 @@
 package com.vipa.medlabel.exception;
 
 public class CustomException extends RuntimeException {
+
     private final CustomError error;
 
     public CustomException(CustomError error) {

@@ -1,4 +1,4 @@
-package com.vipa.medlabel.dto.request;
+package com.vipa.medlabel.dto.request.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

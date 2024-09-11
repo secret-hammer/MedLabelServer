@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ import java.util.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    private Integer userId;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -42,5 +44,6 @@ public class User {
     private Timestamp updatedTime;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Project> projects = new ArrayList<>();
 }
