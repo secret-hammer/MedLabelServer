@@ -41,14 +41,14 @@
 
 ## 架构选型
 
-| 架构名称       | 技术栈                                                  |
-| -------------- | ------------------------------------------------------- |
-| 后端           | Springboot + JPA                                        |
-| 关系型数据库   | MySQL（暂时不需要分库分表）                             |
-| NoSQL数据库    | Redis（根据需求使用）主要保存一些非持久化数据和缓存数据 |
-| 静态资源服务器 | Ngnix                                                   |
-| 计算服务       | Flask（沿用之前的架构，修改代码                         |
-| 前端           | React                                                   |
+| 架构名称       | 技术栈                                   |
+| -------------- | ---------------------------------------- |
+| 后端           | Springboot + JPA                         |
+| 关系型数据库   | MySQL（暂时不需要分库分表）              |
+| NoSQL数据库    | Redis（缓存），MongoDB（标注数据持久化） |
+| 静态资源服务器 | Ngnix                                    |
+| 计算服务       | Flask（沿用之前的架构，修改代码）        |
+| 前端           | React                                    |
 
 ## 架构和软件版本
 
@@ -59,6 +59,8 @@
 | Springboot | 2.7.18 |
 | MySQL      | 8.0.37 |
 | Redis      | 6.2.14 |
+| MongoDB    | 6.0.16 |
+| RabbitMQ   | 3.13.6 |
 
 
 
@@ -85,7 +87,7 @@
 - **任务模块**：负责所有任务（耗时操作）（**数据集创建任务、模型推理任务**）信息的管理
   - 任务创建
   - 任务执行（调用python计算服务进行）
-  - 任务进度更新（通过SSE实现消息推送）
+  - 任务进度更新（通过websocket实现消息推送）
   - 任务查询
 
 
@@ -94,7 +96,7 @@
 
 ### 数据库创建命令
 
-- 要求数据库定义过程**不包含任何外键约束**！在业务中通过应用层JPA，或纯业务逻辑来进行判断
+- 要求数据库定义过程**不包含任何外键约束**！在业务中通过应用层JPA，或纯业务逻辑来进行判断
 - 数据库每一个字段都要设置为**有值**（设置为非空或给定‘N/A’作为默认值，**不允许出现空值！**）
 
 ```sql
@@ -127,25 +129,33 @@ CREATE TABLE ImageType (
     ImageExtensions VARCHAR(500) NOT NULL
 );
 
+INSERT INTO ImageType (ImageTypeName, ImageExtensions)
+VALUES
+('自然图', '["png", "jpg", "jpeg"]'),
+('数字医学图像', '["dicom"]'),
+('病理图', '["mrxs", "tif", "svs"]');
+
 # 数据集表 (现在的数据集表表达一个较大的概念，在编码时将其设定为和ImageGroup表的父目录，形成两层目录来确定一组图片)
 CREATE TABLE Project (
-		ProjectId INT AUTO_INCREMENT PRIMARY KEY,                -- 自增长的数据集ID
-  	ProjectName VARCHAR(50) NOT NULL,                        -- 数据集名，非空
-  	Description VARCHAR(2000) DEFAULT 'N/A',								   -- 数据集描述信息，默认为'N/A'
-  	UserId INT NOT NULL,																		 -- 关联的用户，外键（不在数据库中设计外键） 
-  	ImageTypeId INT NOT NULL,																 -- 关联的图片类型，外键（不在数据库中设计外键）
-  	CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- 记录创建时间，默认为当前时间
-    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+    ProjectId INT AUTO_INCREMENT PRIMARY KEY,                -- 自增长的数据集ID
+    ProjectName VARCHAR(50) NOT NULL,                        -- 数据集名，非空
+    Description VARCHAR(2000) DEFAULT 'N/A',                   -- 数据集描述信息，默认为'N/A'
+    UserId INT NOT NULL,                                     -- 关联的用户，外键（不在数据库中设计外键） 
+    ImageTypeId INT NOT NULL,                                -- 关联的图片类型，外键（不在数据库中设计外键）
+    CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- 记录创建时间，默认为当前时间
+    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+  	version INT NOT NULL DEFAULT 0                      -- 版本号，用于实现乐观锁
 );
 
 # 图片组表（ImageGroup表，保存图片的最小一级，是Project的子目录）
 CREATE TABLE ImageGroup (
-		ImageGroupId INT AUTO_INCREMENT PRIMARY KEY,               -- 自增长的图片组ID
+    ImageGroupId INT AUTO_INCREMENT PRIMARY KEY,               -- 自增长的图片组ID
     ImageGroupName VARCHAR(50) NOT NULL,                       -- 图片组名，非空
     Description VARCHAR(2000) NOT NULL DEFAULT 'N/A',          -- 图片组描述信息，非空，默认为'N/A'
     ProjectId INT NOT NULL,                                    -- 关联的数据集ID，外键（不在数据库中设计外键）
     CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- 记录创建时间，默认为当前时间
-    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+  	version INT NOT NULL DEFAULT 0                      -- 版本号，用于实现乐观锁
 );
 
 # 图片表 
@@ -157,18 +167,8 @@ CREATE TABLE Image (
     ImageTypeId INT NOT NULL,                              -- 关联的图片类型ID，外键（不在数据库中设计外键）
     Status INT NOT NULL DEFAULT 0,                         -- 图片状态，默认为0 （0:未标注，1:已标注，2:标注完成）
     CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,       -- 记录创建时间，默认为当前时间
-    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
-);
-
-# 标记表
-CREATE TABLE Annotation (
-    AnnotationId INT AUTO_INCREMENT PRIMARY KEY,             -- 自增长的标记ID
-  	AnnotationName VARCHAR(50) NOT NULL,                     -- 标记名称，非空
-    AnnotationUrl VARCHAR(255) NOT NULL,                     -- 标记结果保存的URL，非空
-    ImageId INT NOT NULL,                                     -- 关联的图片ID，外键（不在数据库中设计外键）
-    AnnotatedBy VARCHAR(255) NOT NULL,            -- 标注者（如果是手动标注结果就是human，模型推理结果就是对应的模型名称）
-    CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,          -- 记录创建时间，默认为当前时间
-    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 记录最后更新时间，默认为当前时间并在更新时自动修改
+  	version INT NOT NULL DEFAULT 0                      -- 版本号，用于实现乐观锁
 );
 
 # 网络模型表（表示当前平台可用的所有模型）
@@ -176,10 +176,37 @@ CREATE TABLE Network(
 NetworkId INT AUTO_INCREMENT PRIMARY KEY,
     NetworkName VARCHAR(50) NOT NULL,
     Description VARCHAR(2000) NOT NULL DEFAULT 'N/A',
-    CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 					-- 记录创建时间，默认为当前时间
-    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP	-- 记录最后更新时间，默认为当前时间并在更新时自动修改
+    CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,          -- 记录创建时间，默认为当前时间
+    UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 记录最后更新时间，默认为当前时间并在更新时自动修改
 );
 
 ```
 
+```Java
+// MongoDB 文档类型，这里给出springboot的类定义进行格式限定
+@Data
+@Document(collection = "annotations")
+public class Annotation {
+    @Id
+    private ObjectId annotationId;
+
+    private String annotationName;
+
+    private String description;
+
+    @NotNull(message = "Image Id is required")
+    private Integer imageId;
+
+    private Timestamp createdTime;
+
+    private Timestamp updatedTime;
+
+    private String annotatedBy;
+
+    @NotNull(message = "User Id is required")
+    private Integer userId; // 直接关联用户ID，避免多级关联访问
+
+    private String annotationResult; // 标注结果
+}
+```
 
