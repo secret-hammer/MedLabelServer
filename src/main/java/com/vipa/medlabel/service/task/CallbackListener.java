@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 public class CallbackListener {
     private final TaskService taskService;
 
-    @RabbitListener(queues = "image_convert_task_finish_callback_queue")
+    @RabbitListener(queues = "medlabel_image_convert_task_finish_callback_queue", containerFactory = "rabbitListenerContainerFactory")
     public void imageConvertTaskFinishCallback(@Valid ImageConvertTaskCallbackDto imageConvertTaskCallbackDto) {
         taskService.imageConvertTaskFinishCallback(imageConvertTaskCallbackDto);
     }

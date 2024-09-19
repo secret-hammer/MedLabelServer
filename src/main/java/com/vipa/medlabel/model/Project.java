@@ -26,6 +26,10 @@ public class Project {
     @Column(nullable = true, length = 2000)
     private String description = "N/A";
 
+    @Column(nullable = true, length=1000)
+    private String categories = "[]";
+
+
     @Column(nullable = false, updatable = false)
     @org.hibernate.annotations.CreationTimestamp
     private Timestamp createdTime;

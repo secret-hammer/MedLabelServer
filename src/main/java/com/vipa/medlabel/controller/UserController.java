@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.vipa.medlabel.dto.request.user.LoginRequest;
 import com.vipa.medlabel.dto.request.user.RegisterRequest;
 import com.vipa.medlabel.dto.response.ResponseResult;
+import com.vipa.medlabel.dto.response.user.LoginUserInfo;
 import com.vipa.medlabel.service.user.AuthService;
 import com.vipa.medlabel.service.user.UserService;
 
@@ -30,10 +31,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseResult<String>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest);
+    public ResponseEntity<ResponseResult<LoginUserInfo>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        LoginUserInfo loginUserInfo = authService.login(loginRequest);
 
-        ResponseResult<String> response = new ResponseResult<>(200, "User logged in successfully", token);
+        ResponseResult<LoginUserInfo> response = new ResponseResult<>(200, "User logged in successfully", loginUserInfo);
 
         return ResponseEntity.ok(response);
     }

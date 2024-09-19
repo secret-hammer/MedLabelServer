@@ -9,13 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.alibaba.fastjson.JSON;
 import com.vipa.medlabel.dto.request.group.CreateGroupRequest;
 import com.vipa.medlabel.dto.request.group.CreateGroupRequest.GroupDetail;
 import com.vipa.medlabel.dto.request.project.CreateProjectInfo;
@@ -30,7 +29,6 @@ import com.vipa.medlabel.model.User;
 import com.vipa.medlabel.repository.ImageGroupRepository;
 import com.vipa.medlabel.repository.ImageTypeRepository;
 import com.vipa.medlabel.repository.ProjectRepository;
-import com.vipa.medlabel.repository.UserRepository;
 import com.vipa.medlabel.service.group.GroupService;
 import com.vipa.medlabel.service.user.UserService;
 
@@ -74,6 +72,10 @@ public class ProjectService {
                     .orElseThrow(() -> new CustomException(CustomError.IMAGETYPE_NOT_FOUND));
 
             project.setImageType(imageType);
+
+            String categoryString = JSON.toJSONString(createProjectInfo.getCategories());
+            project.setCategories(categoryString);
+
             projectRepository.save(project);
 
             // 在静态资源服务器上创建数据集文件夹
@@ -116,8 +118,23 @@ public class ProjectService {
             Project project = projectRepository.findByProjectId(updateProjectInfo.getProjectId())
                     .orElseThrow(() -> new CustomException(CustomError.PROJECT_NOT_FOUND));
 
-            project.setProjectName(updateProjectInfo.getNewProjectName());
-            project.setDescription(updateProjectInfo.getNewProjectDescription());
+            String newProjectName = updateProjectInfo.getNewProjectName();
+            String newProjectDescription = updateProjectInfo.getNewProjectDescription();
+            List<String> newCategories = updateProjectInfo.getNewCategories();
+            
+            if(newProjectName != null && !newProjectName.isEmpty()) {
+                project.setProjectName(newProjectName);
+            }
+
+            if (newProjectDescription != null && !newProjectDescription.isEmpty()) {
+                project.setDescription(newProjectDescription);
+            }
+            
+            if(newCategories != null && !newCategories.isEmpty()) {
+                String categoryString = JSON.toJSONString(newCategories);
+                project.setCategories(categoryString);
+            }
+            
 
             projectRepository.save(project);
         }

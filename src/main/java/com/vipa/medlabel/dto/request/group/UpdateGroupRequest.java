@@ -20,10 +20,8 @@ public class UpdateGroupRequest {
         @NotNull(message = "Group ID cannot be null")
         private int projectId;
 
-        @NotNull(message = "Group name cannot be null")
         private String name;
 
-        @NotNull(message = "Group description cannot be null")
         private String description;
     }
 }

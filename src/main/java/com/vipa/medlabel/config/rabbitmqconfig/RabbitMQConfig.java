@@ -2,7 +2,7 @@ package com.vipa.medlabel.config.rabbitmqconfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.transaction.PlatformTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.ReturnedMessage;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,6 +18,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate.ConfirmCallback;
 import org.springframework.amqp.rabbit.core.RabbitTemplate.ReturnsCallback;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 
@@ -54,7 +56,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public CachingConnectionFactory connectionFactory() {
+    public CachingConnectionFactory producerConnectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory("10.214.211.209");
         connectionFactory.setUsername("admin");
         connectionFactory.setPassword("123456");
@@ -64,7 +66,17 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public CachingConnectionFactory consumerConnectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("10.214.211.209");
+        connectionFactory.setUsername("admin");
+        connectionFactory.setPassword("123456");
+        return connectionFactory;
+    }
+
+
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(@Qualifier("producerConnectionFactory") ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         rabbitTemplate.setConfirmCallback(confirmCallback());
@@ -104,5 +116,18 @@ public class RabbitMQConfig {
                         ", routingKey: " + returnedMessage.getRoutingKey());
             }
         };
+    }
+
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            @Qualifier("consumerConnectionFactory")ConnectionFactory connectionFactory,
+            PlatformTransactionManager transactionManager) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jsonMessageConverter());
+        factory.setTransactionManager(transactionManager);
+        factory.setChannelTransacted(false); 
+        return factory;
     }
 }

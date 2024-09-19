@@ -9,6 +9,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.vipa.medlabel.config.redisconfig.RedisCache;
 import com.vipa.medlabel.dto.middto.task.TaskProcessDto;
@@ -58,7 +59,7 @@ public class TaskService {
                 createImageConvertTaskDto.getImageId());
 
         createImageConvertTaskDto.setTaskId(taskId);
-        // 创建病理图像转换任务消息
+        // 创建图像转换任务消息
         rabbitTemplate.convertAndSend(TASK_EXCHANGE, IMAGE_CONVERT_ROUTINGKEY,
                 createImageConvertTaskDto);
 
@@ -73,6 +74,8 @@ public class TaskService {
     @Retryable(retryFor = {
             ObjectOptimisticLockingFailureException.class }, maxAttempts = 3, backoff = @Backoff(delay = 100))
     public void imageConvertTaskFinishCallback(@Valid ImageConvertTaskCallbackDto imageConvertTaskCallbackDto) {
+        boolean isActive = TransactionSynchronizationManager.isActualTransactionActive();
+        System.out.println("Transaction active: " + isActive);
         String taskId = imageConvertTaskCallbackDto.getTaskId();
 
         TaskProcessDto taskProcessDto = redisCache.<TaskProcessDto>getCacheMapValue(
@@ -110,8 +113,8 @@ public class TaskService {
             redisCache.setCacheMapValue(IMAGE_CONVERT_TASK_SUCCESS_CACHE_KEY, taskId, taskProcessDto);
         }
 
-        // 主动推送任务进度
-        sendTaskProgress(taskId, taskProcessDto);
+        // // 主动推送任务进度
+        // sendTaskProgress(taskId, taskProcessDto);
     }
 
     public void sendTaskProgress(String taskId, TaskProcessDto taskProcessDto) {

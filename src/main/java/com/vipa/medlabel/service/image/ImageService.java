@@ -55,7 +55,6 @@ public class ImageService {
     @Value("${medlabel.projects.resource.path}")
     private String projectResourcePath;
 
-    @Transactional
     @Retryable(retryFor = {
             ObjectOptimisticLockingFailureException.class }, maxAttempts = 3, backoff = @Backoff(delay = 100))
     public List<String> uploadImages(@Valid UploadImageRequest uploadImageRequest) {
@@ -85,10 +84,9 @@ public class ImageService {
                     createImageFolder(image);
                 }
 
-                // CreateImageConvertTaskDto createImageConvertTaskDto = new
-                // CreateImageConvertTaskDto(
-                // image.getImageGroup().getProject(), image);
-                // taskService.submitImageConvertTask(createImageConvertTaskDto);
+                CreateImageConvertTaskDto createImageConvertTaskDto = new CreateImageConvertTaskDto(
+                        image.getImageGroup().getProject(), image);
+                taskService.submitImageConvertTask(createImageConvertTaskDto);
 
                 results.add("Success!");
             } else {
@@ -98,7 +96,6 @@ public class ImageService {
         return results;
     }
 
-    @Transactional
     @Retryable(retryFor = {
             ObjectOptimisticLockingFailureException.class }, maxAttempts = 3, backoff = @Backoff(delay = 100))
     public List<String> uploadImageFolder(@Valid UploadImageFolderRequest uploadImageFolderRequest) {

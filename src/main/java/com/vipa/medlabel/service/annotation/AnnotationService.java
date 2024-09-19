@@ -68,19 +68,23 @@ public class AnnotationService {
         for (UpdateAnnotationInfo updateAnnotationInfo : annotationInfoList) {
             Annotation annotation = annotationRepository
                     .findByAnnotationId(new ObjectId(updateAnnotationInfo.getAnnotationId()));
-            if (updateAnnotationInfo.getAnnotationName() != null) {
-                annotation.setAnnotationName(updateAnnotationInfo.getAnnotationName());
-            }
 
-            if (updateAnnotationInfo.getAnnotatedBy() != null) {
-                annotation.setAnnotatedBy(updateAnnotationInfo.getAnnotatedBy());
-            }
+            String newAnnotationName = updateAnnotationInfo.getAnnotationName();
+            String newAnnotatedBy = updateAnnotationInfo.getAnnotatedBy();
+            String newDescription = updateAnnotationInfo.getDescription();
+            String newAnnotationResult = updateAnnotationInfo.getAnnotationResult();
 
-            if (updateAnnotationInfo.getDescription() != null) {
-                annotation.setDescription(updateAnnotationInfo.getDescription());
+            if (newAnnotationName != null && !newAnnotationName.isEmpty()) {
+                annotation.setAnnotationName(newAnnotationName);
             }
-            if (updateAnnotationInfo.getAnnotationResult() != null) {
-                annotation.setAnnotationResult(updateAnnotationInfo.getAnnotationResult());
+            if (newAnnotatedBy != null && !newAnnotatedBy.isEmpty()) {
+                annotation.setAnnotatedBy(newAnnotatedBy);
+            }
+            if (newDescription != null && !newDescription.isEmpty()) {
+                annotation.setDescription(newDescription);
+            }
+            if (newAnnotationResult != null && !newAnnotationResult.isEmpty()) {
+                annotation.setAnnotationResult(newAnnotationResult);
             }
             annotationRepository.save(annotation);
         }

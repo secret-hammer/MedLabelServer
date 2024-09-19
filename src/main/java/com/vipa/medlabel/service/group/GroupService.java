@@ -181,9 +181,17 @@ public class GroupService {
                                     "ProjectId " + groupDetail.getProjectId() + " not found"));
                     group.setProject(newProject);
                 }
-
-                group.setImageGroupName(groupDetail.getName());
-                group.setDescription(groupDetail.getDescription());
+                
+                String newName = groupDetail.getName();
+                String newDescription = groupDetail.getDescription();
+                if (newName != null && !newName.isEmpty()) {
+                    group.setImageGroupName(newName);
+                }
+                
+                if (newDescription != null && !newDescription.isEmpty()) {
+                    group.setDescription(newDescription);
+                }
+                
                 imageGroupRepository.save(group);
             } else {
                 throw new CustomException(CustomError.GROUP_NOT_FOUND);

@@ -142,6 +142,7 @@ CREATE TABLE Project (
     Description VARCHAR(2000) DEFAULT 'N/A',                   -- 数据集描述信息，默认为'N/A'
     UserId INT NOT NULL,                                     -- 关联的用户，外键（不在数据库中设计外键） 
     ImageTypeId INT NOT NULL,                                -- 关联的图片类型，外键（不在数据库中设计外键）
+    Categories VARCHAR(1000) NOT NULL DEFAULT '[]',          -- 数据集的标注类别信息（以json数组序列化形式存储）
     CreatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- 记录创建时间，默认为当前时间
     UpdatedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 记录最后更新时间，默认为当前时间并在更新时自动修改
   	version INT NOT NULL DEFAULT 0                      -- 版本号，用于实现乐观锁
