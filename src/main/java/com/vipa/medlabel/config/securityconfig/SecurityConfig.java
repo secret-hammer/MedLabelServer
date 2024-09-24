@@ -21,6 +21,8 @@ public class SecurityConfig {
 
     private JwtAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -36,7 +38,8 @@ public class SecurityConfig {
                     authorize.anyRequest().authenticated();
                 })
                 .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

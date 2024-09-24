@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.vipa.medlabel.exception.*;
 import com.vipa.medlabel.model.User;
-import com.vipa.medlabel.repository.UserRepository;
+import com.vipa.medlabel.repository.jpa.UserRepository;
 
 import java.util.Set;
 import java.util.Collections;

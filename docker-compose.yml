@@ -1,0 +1,112 @@
+version: '3.8'
+
+networks:
+  medlabel-network:
+    driver: bridge
+
+services:
+  medlabel_server:
+    user: "1006:1006" # 指定容器内的用户ID和组ID
+    build: .
+    ports:
+      - "9091:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - /nfs5/medlabel/medlabel_212:/nfs5/medlabel/medlabel_212 # 静态资源服务器挂载
+      - /medical-data:/medical-data # 病理图识别路径挂载（一定要挂载才能识别）
+    networks:
+      - medlabel-network
+
+  mysql:
+    user: "1006:1006" # 指定容器内的用户ID和组ID
+    image: mysql:8.0.37
+    environment:
+      MYSQL_ROOT_PASSWORD: vipa@404
+      MYSQL_DATABASE: medlabel
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: vipa@404_admin
+    ports:
+      - "23306:3306"
+    volumes:
+      - ./service/mysql/mysql_data:/var/lib/mysql
+      - ./service/mysql/logs:/var/log/mysql
+      - ./service/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./service/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql # 挂载初始化SQL脚本
+    networks:
+      - medlabel-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  redis:
+    user: "1006:1006" # 指定容器内的用户ID和组ID
+    image: redis:6.2.14
+    ports:
+      - "26379:6379"
+
+    volumes:
+      - ./service/redis/redis_data:/data
+      - ./service/redis/redis.conf:/usr/local/etc/redis/redis.conf # 挂载自定义配置文件
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ] # 使用自定义配置文件启动Redis
+    networks:
+      - medlabel-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  mongodb:
+    user: "1006:1006" # 指定容器内的用户ID和组ID
+    image: mongo:6.0.16
+    ports:
+      - "37017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: vipa404
+    volumes:
+      - ./service/mongodb/scripts/:/docker-entrypoint-initdb.d/ # 挂载初始化脚本
+      - ./service/mongodb/mongo_data:/data/db
+      - ./service/mongodb/log:/var/log/mongodb
+    command: [ "mongod", "--logpath", "/var/log/mongodb/mongodb.log", "--logappend", "--bind_ip_all" ]
+    networks:
+      - medlabel-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  rabbitmq:
+    user: "1006:1006" # 指定容器内的用户ID和组ID
+    image: rabbitmq:3.13.6-management
+    ports:
+      - "25673:5672"
+      - "35673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin # 配置 RabbitMQ 用户名
+      RABBITMQ_DEFAULT_PASS: vipa@404 # 配置 RabbitMQ 密码
+    volumes:
+      - ./service/rabbitmq/rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - medlabel-network
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

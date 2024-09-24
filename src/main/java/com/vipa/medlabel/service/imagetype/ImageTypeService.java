@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.vipa.medlabel.model.ImageType;
-import com.vipa.medlabel.repository.ImageTypeRepository;
+import com.vipa.medlabel.repository.jpa.ImageTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

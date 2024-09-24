@@ -14,7 +14,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.vipa.medlabel.config.redisconfig.RedisCache;
 import com.vipa.medlabel.dto.middto.task.TaskProcessDto;
 import com.vipa.medlabel.model.Image;
-import com.vipa.medlabel.repository.ImageRepository;
+import com.vipa.medlabel.repository.jpa.ImageRepository;
 import com.vipa.medlabel.dto.middto.task.CreateImageConvertTaskDto;
 import com.vipa.medlabel.dto.middto.task.ImageConvertTaskCallbackDto;
 
@@ -113,8 +113,8 @@ public class TaskService {
             redisCache.setCacheMapValue(IMAGE_CONVERT_TASK_SUCCESS_CACHE_KEY, taskId, taskProcessDto);
         }
 
-        // // 主动推送任务进度
-        // sendTaskProgress(taskId, taskProcessDto);
+        // 主动推送任务进度
+        sendTaskProgress(taskId, taskProcessDto);
     }
 
     public void sendTaskProgress(String taskId, TaskProcessDto taskProcessDto) {

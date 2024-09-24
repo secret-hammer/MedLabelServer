@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.ReturnedMessage;
@@ -19,14 +20,24 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate.ConfirmCallback;
 import org.springframework.amqp.rabbit.core.RabbitTemplate.ReturnsCallback;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 
 @Slf4j
 @Configuration
 public class RabbitMQConfig {
+    @Value("${spring.rabbitmq.host}")
+    private String host;
+
+    @Value("${spring.rabbitmq.username}")
+    private String username;
+
+    @Value("${spring.rabbitmq.password}")
+    private String password;
 
     private static final Logger logger = LoggerFactory.getLogger("rabbitmq_log");
+
 
     @Bean
     public Queue medLabelImageConvertQueue() {
@@ -57,9 +68,9 @@ public class RabbitMQConfig {
 
     @Bean
     public CachingConnectionFactory producerConnectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("10.214.211.209");
-        connectionFactory.setUsername("admin");
-        connectionFactory.setPassword("123456");
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
         connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
         connectionFactory.setPublisherReturns(true);
         return connectionFactory;
@@ -67,13 +78,18 @@ public class RabbitMQConfig {
 
     @Bean
     public CachingConnectionFactory consumerConnectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("10.214.211.209");
-        connectionFactory.setUsername("admin");
-        connectionFactory.setPassword("123456");
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
         return connectionFactory;
     }
 
-
+    @Bean
+    public RabbitAdmin rabbitAdmin(@Qualifier("producerConnectionFactory") ConnectionFactory connectionFactory) {
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+        rabbitAdmin.setAutoStartup(true); // 确保自动启动
+        return rabbitAdmin;
+    }
 
     @Bean
     public RabbitTemplate rabbitTemplate(@Qualifier("producerConnectionFactory") ConnectionFactory connectionFactory) {

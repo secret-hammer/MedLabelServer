@@ -132,7 +132,7 @@ CREATE TABLE ImageType (
 INSERT INTO ImageType (ImageTypeName, ImageExtensions)
 VALUES
 ('自然图', '["png", "jpg", "jpeg"]'),
-('数字医学图像', '["dicom"]'),
+('数字医学图像', '["dicom", "dcm"]'),
 ('病理图', '["mrxs", "tif", "svs"]');
 
 # 数据集表 (现在的数据集表表达一个较大的概念，在编码时将其设定为和ImageGroup表的父目录，形成两层目录来确定一组图片)

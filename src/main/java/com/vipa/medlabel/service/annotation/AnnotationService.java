@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.vipa.medlabel.repository.AnnotationRepository;
+import com.vipa.medlabel.repository.mongo.AnnotationRepository;
 import com.vipa.medlabel.service.user.UserService;
 
 import com.vipa.medlabel.dto.request.annotation.*;

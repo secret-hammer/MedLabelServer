@@ -26,9 +26,9 @@ import com.vipa.medlabel.model.ImageGroup;
 import com.vipa.medlabel.model.ImageType;
 import com.vipa.medlabel.model.Project;
 import com.vipa.medlabel.model.User;
-import com.vipa.medlabel.repository.ImageGroupRepository;
-import com.vipa.medlabel.repository.ImageTypeRepository;
-import com.vipa.medlabel.repository.ProjectRepository;
+import com.vipa.medlabel.repository.jpa.ImageGroupRepository;
+import com.vipa.medlabel.repository.jpa.ImageTypeRepository;
+import com.vipa.medlabel.repository.jpa.ProjectRepository;
 import com.vipa.medlabel.service.group.GroupService;
 import com.vipa.medlabel.service.user.UserService;
 

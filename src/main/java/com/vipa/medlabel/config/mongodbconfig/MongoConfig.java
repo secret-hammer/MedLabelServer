@@ -12,11 +12,13 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import org.springframework.core.convert.converter.Converter;
 import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Configuration
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
@@ -34,6 +36,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Bean
     public MongoTemplate mongoTemplate() {
+        log.info(mongoUri);
         return new MongoTemplate(MongoClients.create(mongoUri), getDatabaseName());
     }
 
@@ -51,4 +54,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
         return new MongoCustomConversions(converters);
     }
 
+    @Bean
+    public MongoClient mongoClient() {
+        return MongoClients.create(mongoUri);
+    }
 }

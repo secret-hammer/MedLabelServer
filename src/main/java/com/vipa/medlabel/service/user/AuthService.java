@@ -11,7 +11,7 @@ import com.vipa.medlabel.config.securityconfig.JwtTokenProvider;
 import com.vipa.medlabel.dto.request.user.LoginRequest;
 import com.vipa.medlabel.dto.response.user.LoginUserInfo;
 import com.vipa.medlabel.model.User;
-import com.vipa.medlabel.repository.UserRepository;
+import com.vipa.medlabel.repository.jpa.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

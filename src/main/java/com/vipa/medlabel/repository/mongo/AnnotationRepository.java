@@ -1,4 +1,4 @@
-package com.vipa.medlabel.repository;
+package com.vipa.medlabel.repository.mongo;
 
 import com.vipa.medlabel.model.Annotation;
 

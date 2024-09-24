@@ -3,7 +3,11 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-logs/
+**/logs/
+**/log/
+service/*/*_data/*
+!service/*/*_data/.gitkeep
+dump.rdb
 
 ### STS ###
 .apt_generated

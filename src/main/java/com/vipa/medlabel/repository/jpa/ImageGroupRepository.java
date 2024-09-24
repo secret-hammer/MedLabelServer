@@ -1,4 +1,4 @@
-package com.vipa.medlabel.repository;
+package com.vipa.medlabel.repository.jpa;
 
 import com.vipa.medlabel.model.ImageGroup;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,6 @@
 package com.vipa.medlabel.service.group;
 
-import com.vipa.medlabel.repository.ImageRepository;
+import com.vipa.medlabel.repository.jpa.ImageRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,9 +19,9 @@ import com.vipa.medlabel.dto.response.group.GroupSearchResult;
 import com.vipa.medlabel.model.Image;
 import com.vipa.medlabel.model.ImageGroup;
 import com.vipa.medlabel.model.Project;
-import com.vipa.medlabel.repository.ImageGroupRepository;
+import com.vipa.medlabel.repository.jpa.ImageGroupRepository;
 import org.springframework.stereotype.Service;
-import com.vipa.medlabel.repository.ProjectRepository;
+import com.vipa.medlabel.repository.jpa.ProjectRepository;
 import com.vipa.medlabel.exception.CustomError;
 import com.vipa.medlabel.exception.CustomException;
 import com.vipa.medlabel.service.image.ImageService;
