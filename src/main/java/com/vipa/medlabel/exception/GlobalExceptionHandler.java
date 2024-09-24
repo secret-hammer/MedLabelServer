@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -60,7 +62,11 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(Exception.class)
-        public ResponseEntity<ResponseResult<Object>> handleAllExceptions(Exception ex, WebRequest request) {
+        public ResponseEntity<ResponseResult<Object>> handleAllExceptions(Exception ex, WebRequest request)
+                        throws Exception {
+                if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+                        throw ex;
+                }
                 ResponseResult<Object> errorResponse = new ResponseResult<>(CustomError.INTERNAL_SERVER_ERROR.getCode(),
                                 ex.getMessage());
 

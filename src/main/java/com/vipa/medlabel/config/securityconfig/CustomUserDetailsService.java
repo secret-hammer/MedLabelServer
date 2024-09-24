@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.vipa.medlabel.exception.*;
 import com.vipa.medlabel.model.User;
 import com.vipa.medlabel.repository.UserRepository;
 
@@ -24,8 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         public UserDetails loadUserByUsername(String usernameOrEmail) {
 
                 User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                                .orElseThrow(() -> new CustomException(
-                                                CustomError.USERNAME_NOT_FOUND_ERROR));
+                                .orElseThrow(() -> new UsernameNotFoundException(
+                                                "User not exists by Username or Email"));
 
                 // 编辑用户权限，暂时没有用户权限设定
                 Set<GrantedAuthority> authorities = Collections.emptySet();

@@ -28,7 +28,6 @@ import com.vipa.medlabel.exception.CustomError;
 import com.vipa.medlabel.exception.CustomException;
 import com.vipa.medlabel.repository.ImageTypeRepository;
 import com.vipa.medlabel.service.task.TaskService;
-import com.vipa.medlabel.service.user.UserService;
 import com.vipa.medlabel.util.DirectoryUtil;
 import com.vipa.medlabel.util.ImageValidator;
 

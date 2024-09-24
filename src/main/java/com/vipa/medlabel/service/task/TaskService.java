@@ -113,8 +113,8 @@ public class TaskService {
             redisCache.setCacheMapValue(IMAGE_CONVERT_TASK_SUCCESS_CACHE_KEY, taskId, taskProcessDto);
         }
 
-        // // 主动推送任务进度
-        // sendTaskProgress(taskId, taskProcessDto);
+        // 主动推送任务进度
+        sendTaskProgress(taskId, taskProcessDto);
     }
 
     public void sendTaskProgress(String taskId, TaskProcessDto taskProcessDto) {

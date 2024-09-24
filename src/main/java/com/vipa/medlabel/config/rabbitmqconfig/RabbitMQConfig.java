@@ -25,7 +25,6 @@ import org.springframework.amqp.core.BindingBuilder;
 @Slf4j
 @Configuration
 public class RabbitMQConfig {
-
     private static final Logger logger = LoggerFactory.getLogger("rabbitmq_log");
 
     @Bean
