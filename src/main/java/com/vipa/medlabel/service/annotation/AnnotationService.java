@@ -12,19 +12,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.vipa.medlabel.repository.AnnotationRepository;
+import com.vipa.medlabel.repository.ImageGroupRepository;
+import com.vipa.medlabel.repository.ProjectRepository;
 import com.vipa.medlabel.service.user.UserService;
 
 import com.vipa.medlabel.dto.request.annotation.*;
 import com.vipa.medlabel.dto.response.SearchResult;
+import com.vipa.medlabel.dto.response.annotation.DownloadAnnotationInfo;
 import com.vipa.medlabel.exception.CustomError;
 import com.vipa.medlabel.exception.CustomException;
 import com.vipa.medlabel.model.Annotation;
+import com.vipa.medlabel.model.Image;
+import com.vipa.medlabel.model.ImageGroup;
+import com.vipa.medlabel.model.Project;
 import com.vipa.medlabel.model.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -34,6 +40,8 @@ public class AnnotationService {
     private final UserService userService;
 
     private final AnnotationRepository annotationRepository;
+    private final ImageGroupRepository imageGroupRepository;
+    private final ProjectRepository projectRepository;
 
     private final MongoTemplate mongoTemplate;
 
@@ -144,5 +152,52 @@ public class AnnotationService {
             throw new CustomException(CustomError.ANNOTATION_NOT_FOUND);
         }
         annotationRepository.delete(annotation);
+    }
+
+    public Map<String, Map<String, Map<String, List<DownloadAnnotationInfo>>>> downloadByProjects(
+            List<Integer> projectIds) {
+        Map<String, Map<String, Map<String, List<DownloadAnnotationInfo>>>> resultMap = new HashMap<>();
+        for (Integer projectId : projectIds) {
+            Optional<Project> optionalProject = projectRepository.findByProjectId(projectId);
+            if (!optionalProject.isPresent()) {
+                throw new CustomException(CustomError.PROJECT_NOT_FOUND);
+            }
+            Project project = optionalProject.get();
+            List<ImageGroup> imageGroups = project.getImageGroups();
+            List<Integer> imageGroupIds = new ArrayList<>();
+            for (ImageGroup imageGroup : imageGroups) {
+                imageGroupIds.add(imageGroup.getImageGroupId());
+            }
+            Map<String, Map<String, List<DownloadAnnotationInfo>>> imageGroupAnnotationInfoMap;
+            imageGroupAnnotationInfoMap = downloadByImageGroups(imageGroupIds);
+            resultMap.put(project.getProjectId() + "&&&" + project.getProjectName(), imageGroupAnnotationInfoMap);
+        }
+        return resultMap;
+    }
+
+    public Map<String, Map<String, List<DownloadAnnotationInfo>>> downloadByImageGroups(List<Integer> imageGroupIds) {
+        Map<String, Map<String, List<DownloadAnnotationInfo>>> resultMap = new HashMap<>();
+        for (Integer imageGroupId : imageGroupIds) {
+            Optional<ImageGroup> optionaImageGroup = imageGroupRepository.findAllByImageGroupId(imageGroupId);
+
+            if (!optionaImageGroup.isPresent()) {
+                throw new CustomException(CustomError.GROUP_NOT_FOUND);
+            }
+
+            ImageGroup imageGroup = optionaImageGroup.get();
+            List<Image> images = imageGroup.getImages();
+            Map<String, List<DownloadAnnotationInfo>> imageAnnotationInfoMap = new HashMap<>();
+            for (Image image : images) {
+                List<Annotation> annotations = annotationRepository.findByImageId(image.getImageId());
+                List<DownloadAnnotationInfo> downloadAnnotationInfos = new ArrayList<>();
+                for (Annotation annotation : annotations) {
+                    downloadAnnotationInfos.add(new DownloadAnnotationInfo(annotation));
+                }
+                imageAnnotationInfoMap.put(image.getImageUrl() + "&&&" + image.getImageName(), downloadAnnotationInfos);
+            }
+            resultMap.put(imageGroup.getImageGroupId() + "&&&" + imageGroup.getImageGroupName(),
+                    imageAnnotationInfoMap);
+        }
+        return resultMap;
     }
 }
