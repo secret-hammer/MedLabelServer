@@ -7,6 +7,7 @@ import com.vipa.medlabel.dto.request.annotation.CreateAnnotationInfo;
 import com.vipa.medlabel.dto.request.annotation.UpdateAnnotationInfo;
 import com.vipa.medlabel.dto.response.ResponseResult;
 import com.vipa.medlabel.dto.response.SearchResult;
+import com.vipa.medlabel.dto.response.annotation.DownloadAnnotationInfo;
 import com.vipa.medlabel.model.Annotation;
 import com.vipa.medlabel.service.annotation.AnnotationService;
 
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,4 +83,27 @@ public class AnnotationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/download/project")
+    public ResponseEntity<ResponseResult<Object>> downloadProjectAnnotation(
+            @RequestParam(required = true) List<Integer> projectIds) {
+
+        Map<String, Map<String, Map<String, List<DownloadAnnotationInfo>>>> result = annotationService
+                .downloadByProjects(projectIds);
+        ResponseResult<Object> response = new ResponseResult<>(200,
+                "Project annotation information download successfully", result);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/download/group")
+    public ResponseEntity<ResponseResult<Object>> downloadImageGourpAnnotation(
+            @RequestParam(required = true) List<Integer> imageGroupIds) {
+
+        Map<String, Map<String, List<DownloadAnnotationInfo>>> annotationList = annotationService
+                .downloadByImageGroups(imageGroupIds);
+        ResponseResult<Object> response = new ResponseResult<>(200,
+                "ImageGroup annotation information download successfully", annotationList);
+
+        return ResponseEntity.ok(response);
+    }
 }

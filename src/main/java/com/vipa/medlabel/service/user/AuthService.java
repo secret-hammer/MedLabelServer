@@ -32,9 +32,8 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-
-        User user = userRepository.findByUsername(username);
+        String usernameOrEmail = userDetails.getUsername();
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).get();
 
         return new LoginUserInfo(user.getUsername(), user.getEmail(), user.getPhone(), user.getProfileLink(),
         jwtTokenProvider.generateToken(authentication));
