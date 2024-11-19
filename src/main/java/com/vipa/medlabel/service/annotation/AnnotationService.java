@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.vipa.medlabel.repository.AnnotationRepository;
 import com.vipa.medlabel.repository.ImageGroupRepository;
+import com.vipa.medlabel.repository.ImageRepository;
 import com.vipa.medlabel.repository.ProjectRepository;
 import com.vipa.medlabel.service.user.UserService;
 
@@ -41,6 +42,7 @@ public class AnnotationService {
 
     private final AnnotationRepository annotationRepository;
     private final ImageGroupRepository imageGroupRepository;
+    private final ImageRepository imageRepository;
     private final ProjectRepository projectRepository;
 
     private final MongoTemplate mongoTemplate;
@@ -52,6 +54,20 @@ public class AnnotationService {
             Annotation annotation = new Annotation();
             annotation.setAnnotationName(createAnnotationInfo.getAnnotationName());
             annotation.setImageId(createAnnotationInfo.getImageId());
+            if (imageRepository.findByImageId(createAnnotationInfo.getImageId()) == null) {
+                throw new CustomException(CustomError.IMAGE_ID_NOT_FOUND);
+            }
+
+            Image image = imageRepository.findByImageId(createAnnotationInfo.getImageId());
+
+            if (image.getStatus() == 0 || image.getStatus() == 1) {
+                throw new CustomException(CustomError.IMAGE_NOT_AVAILABLE);
+            }
+            else if (image.getStatus() == 2) {
+                image.setStatus(4);
+                imageRepository.save(image);
+            }
+
             annotation.setDescription(createAnnotationInfo.getDescription());
             annotation.setAnnotationResult(createAnnotationInfo.getAnnotationResult());
             annotation.setUserId(user.getUserId());

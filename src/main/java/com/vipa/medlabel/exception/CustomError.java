@@ -21,6 +21,7 @@ public enum CustomError {
     INVALID_FOLDER_URL(732, "Image folder not found or is not a folder"),
     READ_FOLDER_ERROR(733, "Read folder error"),
     CROSS_PROJECT_MOVE_ERROR(734, "Cross project move is not supported"),
+    IMAGE_NOT_AVAILABLE(735, "Image not available(not converted yet)"),
 
     IMAGE_GROUP_ID_NOT_FOUND(740, "Image group id not found"),
     GROUP_NOT_FOUND(741, "Group not found"),

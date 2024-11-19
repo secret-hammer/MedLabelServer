@@ -121,7 +121,7 @@ public class GroupService {
         List<List<Integer>> imageStatus = new ArrayList<>();
         for (ImageGroup group : sortedGroups) {
             List<Image> images = group.getImages();
-            List<Integer> statusList = new ArrayList<>(Arrays.asList(0, 0, 0, 0));
+            List<Integer> statusList = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
             for (Image image : images) {
                 int status = image.getStatus();
                 statusList.set(status, statusList.get(status) + 1);

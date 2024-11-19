@@ -13,4 +13,6 @@ public interface ImageRepository extends JpaRepository<Image, Integer>, JpaSpeci
 
     @Query("SELECT i.imageId FROM Image i WHERE i.imageGroup.imageGroupId = :groupId")
     List<Integer> findImageIdByImageGroupImageGroupId(Integer groupId);
+
+    Image findByImageId(Integer imageId);
 }
